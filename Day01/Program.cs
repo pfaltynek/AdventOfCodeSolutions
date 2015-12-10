@@ -9,7 +9,7 @@ namespace Day01 {
 		private const string input_path = "./input.txt";
 		static void Main(string[] args) {
 			string input = string.Empty;
-			int position, floor, result2;
+			int position, floor;
 			char c;
 
 			Console.WriteLine("=== Advent of Code - day 1 ====");
