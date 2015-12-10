@@ -15,7 +15,7 @@ namespace Day04 {
 			byte[] hash, src;
 			MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
 
-			Console.WriteLine("=== Advent of Code - day 3 ====");
+			Console.WriteLine("=== Advent of Code - day 4 ====");
 
 			#region part 1
 
