@@ -17,7 +17,8 @@ namespace Day06 {
 		private enum action {
 			on,
 			off,
-			toggle}
+			toggle
+		}
 
 		;
 
@@ -25,7 +26,7 @@ namespace Day06 {
 			int x;
 			int y;
 
-			public coords (int valx, int valy) {
+			public coords(int valx, int valy) {
 				x = valx;
 				y = valy;
 			}
@@ -39,69 +40,73 @@ namespace Day06 {
 			bool[,] grid = new bool[1000, 1000];
 			int[,] bright = new int[1000, 1000];
 
-			Console.WriteLine ("=== Advent of Code - day 6 ====");
+			Console.WriteLine("=== Advent of Code - day 6 ====");
 
-			if (!System.IO.File.Exists (input_path)) {
-				Console.WriteLine ("input file not found");
+			if (!System.IO.File.Exists(input_path)) {
+				Console.WriteLine("input file not found");
 				return;
 			}
 
 			for (int x = 0; x < 1000; x++) {
 				for (int y = 0; y < 1000; y++) {
-					grid [x, y] = false;
-					bright [x, y] = 0;
+					grid[x, y] = false;
+					bright[x, y] = 0;
 				}
 			}
 
 			#region part 1
-			
-			Console.WriteLine ("--- part 1 ---");
+
+			Console.WriteLine("--- part 1 ---");
 
 			for (int x = 0; x < 1000; x++) {
 				for (int y = 0; y < 1000; y++) {
-					grid [x, y] = false;
-					bright [x, y] = 0;
+					grid[x, y] = false;
+					bright[x, y] = 0;
 				}
 			}
 
-			input = System.IO.File.ReadAllLines (input_path);
+			input = System.IO.File.ReadAllLines(input_path);
 			position = 0;
 
 			while (position < input.Length) {
-				line = input [position].Trim ().ToLower ();
-				if (line.StartsWith (turn_off)) {
-					line = line.Replace (turn_off, string.Empty);
+				line = input[position].Trim().ToLower();
+				if (line.StartsWith(turn_off)) {
+					line = line.Replace(turn_off, string.Empty);
 					cmd_act = action.off;
-				} else if (line.StartsWith (turn_on)) {
-					line = line.Replace (turn_on, string.Empty);
+				}
+				else if (line.StartsWith(turn_on)) {
+					line = line.Replace(turn_on, string.Empty);
 					cmd_act = action.on;
-				} else if (line.StartsWith (toggle)) {
-					line = line.Replace (toggle, string.Empty);
+				}
+				else if (line.StartsWith(toggle)) {
+					line = line.Replace(toggle, string.Empty);
 					cmd_act = action.toggle;
-				} else {
-					Console.WriteLine ("Unknown instruction at line {0}", position + 1);
+				}
+				else {
+					Console.WriteLine("Unknown instruction at line {0}", position + 1);
 					return;
 				}
 
-				if (line.IndexOf (thru) < 0) {
-					Console.WriteLine ("Unknown instruction format at line {0} - {1} not found", position + 1, thru.Trim ());
+				if (line.IndexOf(thru) < 0) {
+					Console.WriteLine("Unknown instruction format at line {0} - {1} not found", position + 1, thru.Trim());
 					return;
-				} else {
-					line = line.Replace (thru, ",");
 				}
-				corners = line.Split (new char[]{ ',' }, StringSplitOptions.RemoveEmptyEntries);
+				else {
+					line = line.Replace(thru, ",");
+				}
+				corners = line.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 				if (corners.Length != 4) {
-					Console.WriteLine ("Unknown instruction format at line {0} - invalid corners count found", position + 1);
+					Console.WriteLine("Unknown instruction format at line {0} - invalid corners count found", position + 1);
 					return;
 				}
 
-				l = int.Parse (corners [0]);
-				u = int.Parse (corners [1]);
-				r = int.Parse (corners [2]);
-				b = int.Parse (corners [3]);
+				l = int.Parse(corners[0]);
+				u = int.Parse(corners[1]);
+				r = int.Parse(corners[2]);
+				b = int.Parse(corners[3]);
 
 				if ((u > 999) || (u < 0) || (l > 999) || (l < 0) || (r > 999) || (r < 0) || (b > 999) || (b < 0)) {
-					Console.WriteLine ("Unknown instruction format at line {0} - invalid corners definition", position + 1);
+					Console.WriteLine("Unknown instruction format at line {0} - invalid corners definition", position + 1);
 					return;
 				}
 
@@ -111,24 +116,24 @@ namespace Day06 {
 					for (int y = u; y <= b; y++) {
 						switch (cmd_act) {
 							case action.off:
-								grid [x, y] = false;
-								if (bright [x, y] >= 1) {
-									bright [x, y]--;
+								grid[x, y] = false;
+								if (bright[x, y] >= 1) {
+									bright[x, y]--;
 								}
 								break;
 							case action.on:
-								grid [x, y] = true;
-								bright [x, y]++;
+								grid[x, y] = true;
+								bright[x, y]++;
 								break;
 							case action.toggle:
-								grid [x, y] = !grid [x, y];
-								bright [x, y]++;
-								bright [x, y]++;
+								grid[x, y] = !grid[x, y];
+								bright[x, y]++;
+								bright[x, y]++;
 								break;
 						}
 					}
 				}
-					
+
 				position++;
 			}
 
@@ -136,12 +141,12 @@ namespace Day06 {
 
 			for (int x = 0; x < 1000; x++) {
 				for (int y = 0; y < 1000; y++) {
-					if (grid [x, y]) {
+					if (grid[x, y]) {
 						sum++;
 					}
 				}
 			}
-			Console.WriteLine ("Result is {0}", sum);
+			Console.WriteLine("Result is {0}", sum);
 
 			#endregion
 
@@ -151,10 +156,10 @@ namespace Day06 {
 
 			for (int x = 0; x < 1000; x++) {
 				for (int y = 0; y < 1000; y++) {
-					sum += bright [x, y];
+					sum += bright[x, y];
 				}
 			}
-			Console.WriteLine ("Result is {0}", sum);
+			Console.WriteLine("Result is {0}", sum);
 
 			#endregion
 
