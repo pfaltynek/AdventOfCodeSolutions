@@ -1,4 +1,4 @@
-﻿Advent of CodePetr Faltýnek 12*[About][Stats][Leaderboard][Settings][Log out]
+﻿Advent of Code
 
  
 --- Day 7: Some Assembly Required ---

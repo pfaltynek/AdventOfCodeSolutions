@@ -89,7 +89,30 @@ namespace Day08 {
 			#region part 2
 
 			Console.WriteLine("--- part 2 ---");
+			sum_code = 0;
+			//input = new string[] { "\"\"", "\"abc\"", "\"aaa\\\"aaa\"", "\"\\x27\"" };
+			for (int i = 0; i < input.Length; i++) {
+				line = input[i].Trim();
+				result = string.Empty;
+				for (int j = 0; j < line.Length; j++) {
+					switch (line[j]) {
+						case '\"':
+							result += dquotes_escaped;
+							break;
+						case '\\':
+							result += backslash_escaped;
+							break;
+						default:
+							result += line[j];
+							break;
+					}
+				}
 
+				result = string.Format("\"{0}\"",result);
+				sum_code += result.Length;
+			}
+
+			Console.WriteLine("Result is {0}", sum_code - sum_chars);
 			#endregion
 		}
 	}
