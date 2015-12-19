@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace Day09 {
 	class Program {
@@ -13,11 +14,9 @@ namespace Day09 {
 			uint distance;
 			string loc1, loc2;
 			Dictionary<string,Dictionary<string, uint>> distances = new Dictionary<string, Dictionary<string, uint>>();
+			Dictionary<string,uint> available_routes = new Dictionary<string, uint>();
 			List<string> destinations = new List<string>();
-			List<string> route = new List<string>();
-			List<List<string>> valid_routes = new List<List<string>>();
-			int[,] index_map;
-			int max_routes, tmp;
+			uint min_route, max_route;
 
 			Console.WriteLine("=== Advent of Code - day 9 ====");
 
@@ -65,20 +64,36 @@ namespace Day09 {
 				destinations.Add(item);
 			}
 
-			tmp = destinations.Count;
-			max_routes = 1;
-			while(tmp > 1) {
-				max_routes = max_routes * tmp;
-				tmp--;
-			}
+			// test the route:
+			destinations.Clear();
+			destinations.AddRange(new string[] {
+				"Tristram",
+				"AlphaCentauri",
+				"Snowdin",
+				"Arbre",
+				"Tambi",
+				"Faerun",
+				"Norrath",
+				"Straylight"
+			});
 
-			index_map = new int[max_routes, destinations.Count];
+			FindAllAvailableRoutes(new List<string>(), destinations, distances, 0, ref available_routes);
+			min_route = uint.MaxValue;
+			max_route = uint.MinValue;
+			foreach (string item in available_routes.Keys) {
+				if(min_route > available_routes[item]) {
+					min_route = available_routes[item];
+				}
+				if(max_route < available_routes[item]) {
+					max_route = available_routes[item];
+				}
+			}
 
 			#endregion
 
 			Console.WriteLine("--- part 1 ---");
 
-			Console.WriteLine("Result is {0}", 0);
+			Console.WriteLine("Result is {0}", min_route);
 
 			#endregion
 
@@ -86,9 +101,44 @@ namespace Day09 {
 
 			Console.WriteLine("--- part 2 ---");
 
-			Console.WriteLine("Result is {0}", 0);
+			Console.WriteLine("Result is {0}", max_route);
 
 			#endregion
+		}
+
+		private static void FindAllAvailableRoutes(
+			List<string> current_route,
+			List<string> available_destinations,
+			Dictionary<string,Dictionary<string, uint>> distances,
+			uint current_distance,
+			ref Dictionary<string,uint> available_routes) {
+
+			if(current_route.Count.Equals(0)) {
+				for(int i = 0; i < available_destinations.Count; i++) {
+					List<string> next_destinations = new List<string>(available_destinations);
+					next_destinations.Remove(available_destinations[i]);
+					List<string> updated_route = new List<string>(current_route);
+					updated_route.Add(available_destinations[i]);
+					FindAllAvailableRoutes(updated_route, next_destinations, distances, current_distance, ref available_routes);
+				}
+			} else {
+				string current_dest = current_route[current_route.Count - 1];
+				for(int i = 0; i < available_destinations.Count; i++) {
+					if(distances[current_dest].ContainsKey(available_destinations[i])) {
+						uint next_distance = current_distance + distances[current_dest][available_destinations[i]];
+						if(available_destinations.Count.Equals(1)) {
+							current_route.Add(available_destinations[i]);
+							available_routes.Add(string.Join("->", current_route), next_distance);
+						} else {
+							List<string> next_destinations = new List<string>(available_destinations);
+							next_destinations.Remove(available_destinations[i]);
+							List<string> updated_route = new List<string>(current_route);
+							updated_route.Add(available_destinations[i]);
+							FindAllAvailableRoutes(updated_route, next_destinations, distances, next_distance, ref available_routes);
+						}
+					}
+				}				
+			}
 		}
 	}
 }
