@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace Day12 {
 	class MainClass {
@@ -8,7 +10,7 @@ namespace Day12 {
 		public static void Main(string[] args) {
 			string input;
 			string[] items;
-			int sum = 0;
+			int sum = 0, sum2 = 0;
 
 			Console.WriteLine("=== Advent of Code - day 9 ====");
 
@@ -41,7 +43,15 @@ namespace Day12 {
 
 			Console.WriteLine("--- part 2 ---");
 
-			Console.WriteLine("Result is {0}", sum);
+			JsonTextReader reader = new JsonTextReader(new StringReader(input));
+			while(reader.Read()) {
+				if(reader.Value != null)
+					Console.WriteLine("Token: {0}, Value: {1}", reader.TokenType, reader.Value);
+				else
+					Console.WriteLine("Token: {0}", reader.TokenType);
+			}
+
+			Console.WriteLine("Result is {0}", sum2);
 
 			#endregion
 		}
