@@ -44,26 +44,14 @@ namespace Day12 {
 			Console.WriteLine("--- part 2 ---");
 
 			JsonTextReader reader = new JsonTextReader(new StringReader(input));
-<<<<<<< HEAD
 
 			sum2 = ParseJson(reader);
-=======
-			sum2 = ParseCommon(TextReader);
-
-			while(reader.Read()) {
-				if(reader.Value != null)
-					Console.WriteLine("Token: {0}, Value: {1}", reader.TokenType, reader.Value);
-				else
-					Console.WriteLine("Token: {0}", reader.TokenType);
-			}
->>>>>>> Stash
 
 			Console.WriteLine("Result is {0}", sum2);
 
 			#endregion
 		}
 
-<<<<<<< HEAD
 		private static int ParseJson(JsonTextReader reader) {
 			int sum = 0;
 			bool is_red = false;
@@ -98,29 +86,5 @@ namespace Day12 {
 
 			return sum;
 		}
-=======
-		private static int ParseCommon(ref JsonTextReader reader) {
-			int result = 0;
-			bool is_red = false;
-
-			while(reader.Read()) {
-				switch(reader.TokenType) {
-					case JsonToken.
-				}
-
-
-			}
-			return result;
-		}
-
-		private static string ParseString(ref JsonTextReader reader) {
-		
-		}
-
-		private static int ParseInt(ref JsonTextReader reader) {
-
-		}
-
->>>>>>> Stash
 	}
 }

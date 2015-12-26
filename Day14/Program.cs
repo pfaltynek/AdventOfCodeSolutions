@@ -3,6 +3,7 @@ using System.Security.Authentication;
 using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
+using System.Runtime.InteropServices;
 
 namespace Day14 {
 	class MainClass {
@@ -79,7 +80,40 @@ namespace Day14 {
 
 			Console.WriteLine("--- part 2 ---");
 
-			Console.WriteLine("Result is {0}", max_distance);
+			Dictionary<string,int> wins = new Dictionary<string, int>();
+			Dictionary<string, int> dists = new Dictionary<string, int>();
+			Dictionary<string, reindeer_speed> reindeeer_infos = new Dictionary<string, reindeer_speed>();
+			List<string> reindeers = new List<string>();
+			foreach (reindeer_speed item in distances.Keys) {
+				reindeers.Add(item.Name);
+				reindeeer_infos.Add(item.Name, item);
+			}
+			foreach (string item in reindeers) {
+				wins.Add(item, 0);
+				dists.Add(item, 0);
+			}
+			for(int i = 1; i < 2503; i++) {
+				max_distance = 0;
+				foreach (string item in reindeers) {
+					int distance = CalculateDistance(reindeeer_infos[item], i);
+					if(distance > max_distance) {
+						max_distance = distance;
+					}
+					dists[item] = distance;
+				}
+				foreach (string item in reindeers) {
+					if(dists[item].Equals(max_distance)) {
+						wins[item]++;
+					}
+				}
+			}
+			int max_wins = 0;
+			foreach (string item in reindeers) {
+				if(wins[item] > max_wins) {
+					max_wins = wins[item];
+				}
+			}
+			Console.WriteLine("Result is {0}", max_wins);
 
 			#endregion
 		}
