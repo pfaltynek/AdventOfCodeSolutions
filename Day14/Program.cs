@@ -2,13 +2,12 @@
 using System.Security.Authentication;
 using System.IO;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
-using System.Runtime.InteropServices;
+
 
 namespace Day14 {
 	class MainClass {
 		private const string input_path = "./input.txt";
-		private const int duration_part1 = 2503;
+		private const int duration_part1_2 = 2503;
 
 		private class reindeer_speed {
 			public string Name;
@@ -58,7 +57,7 @@ namespace Day14 {
 					throw new InvalidDataException(string.Format("Invalid speed rest time at line {0}", i + 1));
 				}
 				info = new reindeer_speed(parts[0], speed, time1, time2);
-				distance = CalculateDistance(info, duration_part1);
+				distance = CalculateDistance(info, duration_part1_2);
 				if(max_distance < distance) {
 					max_distance = distance;
 				}
@@ -92,7 +91,7 @@ namespace Day14 {
 				wins.Add(item, 0);
 				dists.Add(item, 0);
 			}
-			for(int i = 1; i < 2503; i++) {
+			for(int i = 1; i < duration_part1_2; i++) {
 				max_distance = 0;
 				foreach (string item in reindeers) {
 					int distance = CalculateDistance(reindeeer_infos[item], i);
