@@ -7,24 +7,15 @@ namespace Day20 {
 		private const int input_limit = 36000000;
 
 		static void Main(string[] args) {
-			int result_part1, result_part2, sum_limit, max1, sum;
+			int result_part1, result_part2;
 			Console.WriteLine("=== Advent of Code - day 20 ====");
 
 			#region part 1
 
 			Console.WriteLine("--- part 1 ---");
 
-			sum_limit = input_limit / 10;
-			max1 = 0;
-			result_part1 = 0;
-			sum = 0;
-
-			while (sum < sum_limit) {
-				max1++;
-				sum += max1;
-			}
-
 			result_part1 = Calculate(10, input_limit);
+
 			Console.WriteLine("Result is {0}", result_part1);
 
 			#endregion
@@ -33,25 +24,35 @@ namespace Day20 {
 
 			Console.WriteLine("--- part 2 ---");
 
-			result_part2 = 0;
+			result_part2 = Calculate(11, input_limit, 50);
 
 			Console.WriteLine("Result is {0}", result_part2);
 
 			#endregion
 		}
 
-		private static int Calculate(int presents, int limit) {
+		private static int Calculate(int presents, int limit, int house_limit = -1) {
 			int result = -1;
 			int name = 1;
-			int len = limit / presents;
+			int len = 1000000, len2;
 			int[] map = new int[len];
 			int amount;
 
-			while (result < 0) {
+			while(result < 0) {
+				if(house_limit > 0) {
+					len2 = house_limit * name;
+					len2++;
+					if(len2 > len) {
+						len2 = len;
+					}
+				} else {
+					len2 = len;
+				}
+
 				amount = name * presents;
-				for (int i = name; i < len; i += name) {
+				for(int i = name; i < len2; i += name) {
 					map[i] += amount;
-					if (map[i] >= limit) {
+					if(map[i] >= limit) {
 						result = i;
 						break;
 					}
