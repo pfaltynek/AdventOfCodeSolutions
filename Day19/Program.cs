@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Text;
-using System.Security.AccessControl;
-using System.Dynamic;
+using System.Linq;
 
 namespace Day19 {
 	class MainClass {
@@ -13,12 +11,12 @@ namespace Day19 {
 			string[] input, parts;
 			int result_part1, result_part2, index;
 			Dictionary<string, List<string>> replacements = new Dictionary<string, List<string>>();
-			string medicine, derivate;
-			List <string> medicines = new List<string>();
+			string medicine, derivate, reverse;
+			List<string> medicines = new List<string>();
 
 			Console.WriteLine("=== Advent of Code - day 19 ====");
 
-			if(!System.IO.File.Exists(input_path)) {
+			if (!System.IO.File.Exists(input_path)) {
 				Console.WriteLine("input file not found");
 				return;
 			}
@@ -28,15 +26,15 @@ namespace Day19 {
 			#region get all replacements
 
 			index = 0;
-			while(!input[index].Equals(string.Empty)) {
+			while (!input[index].Equals(string.Empty)) {
 				string left, right;
 				parts = input[index].Split(new string[] { " => " }, StringSplitOptions.RemoveEmptyEntries);
-				if(!parts.Length.Equals(2)) {
+				if (!parts.Length.Equals(2)) {
 					throw new InvalidDataException(string.Format("Invalid replacement format at line {0}", index + 1));
 				}
 				left = parts[0].Trim();
 				right = parts[1].Trim();
-				if(!replacements.ContainsKey(left)) {
+				if (!replacements.ContainsKey(left)) {
 					replacements.Add(left, new List<string>());
 				}
 				List<string> x = replacements[left];
@@ -50,10 +48,11 @@ namespace Day19 {
 
 			#region get medicine
 
-			while(input[index].Equals(string.Empty)) {
+			while (input[index].Equals(string.Empty)) {
 				index++;
 			}
 			medicine = input[index].Trim();
+			reverse = medicine;
 
 			#endregion
 
@@ -64,9 +63,9 @@ namespace Day19 {
 			foreach (string item in replacements.Keys) {
 				foreach (string replacement in replacements[item]) {
 					index = medicine.IndexOf(item);
-					while(index >= 0) {
+					while (index >= 0) {
 						derivate = medicine.Substring(0, index) + replacement + medicine.Substring(index + item.Length);
-						if(!medicines.Contains(derivate)) {
+						if (!medicines.Contains(derivate)) {
 							medicines.Add(derivate);
 						}
 						index = medicine.IndexOf(item, index + item.Length);
@@ -86,9 +85,61 @@ namespace Day19 {
 
 			result_part2 = 0;
 
+			Dictionary<string, string> rev_replacements = new Dictionary<string, string>();
+			foreach (string key in replacements.Keys) {
+				foreach (string value in replacements[key]) {
+					rev_replacements.Add(value, key);
+				}
+			}
+
+			result_part2 = ReverseMedicine(reverse, rev_replacements);
+			
 			Console.WriteLine("Result is {0}", result_part2);
 
-			#endregion		
+			#endregion
+		}
+
+
+		/// <summary>
+		/// Idea from http://markheath.net/post/advent-of-code-day-19%E2%80%93mutating
+		/// not needed at all if replace routine is well written
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source"></param>
+		/// <returns></returns>
+		public static IEnumerable<T> Shuffle<T>(IEnumerable<T> source) {
+			Random rnd = new Random();
+			return source.OrderBy<T, int>((item) => rnd.Next());
+		}
+
+		private static int ReverseMedicine(string medicine, Dictionary<string, string> rev_replacements) {
+			int index, result = 0;
+			string wide, replace, reverse_part, tmp;
+
+			List<string> order = new List<string>(rev_replacements.Keys);
+
+			reverse_part = medicine;
+
+			while (!reverse_part.Equals("e")) {
+				tmp = reverse_part;
+				foreach (string item in order) {
+					wide = item;
+					replace = rev_replacements[item];
+					index = reverse_part.IndexOf(wide);
+					if (index >= 0) {
+						reverse_part = reverse_part.Substring(0, index) + replace + reverse_part.Substring(index + wide.Length);
+						result++;
+					}
+				}
+
+				if (tmp.Equals(reverse_part)) {
+					result = 0;
+					order = Shuffle(order).ToList();
+					reverse_part = medicine;
+				}
+			}
+
+			return result;
 		}
 	}
 }
