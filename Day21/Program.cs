@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Day21 {
 	class MainClass {
+		private const string input_path = "./input.txt";
+		private const string input_hitpoints = "Hit Points";
+		private const string input_damage = "Damage";
+		private const string input_armor = "Armor";
+
 		#region embedded types
 
 		private class EquipmentItem {
@@ -35,6 +41,47 @@ namespace Day21 {
 				hitpoints_init = hitpoints;
 				Damage = damage;
 				Defense = armor;
+			}
+
+			public Fighter(string path) {
+				string[] input, parts;
+				Dictionary<string, int> items = new Dictionary<string, int>();
+				int value;
+
+				input = System.IO.File.ReadAllLines(path);
+				foreach (string item in input) {
+					parts = item.Split(new string[] { ": " }, StringSplitOptions.RemoveEmptyEntries);
+					if (!parts.Length.Equals(2)) {
+						throw new InvalidDataException(string.Format("Invalid input format: '{0}'", item));
+					}
+					if (items.ContainsKey(parts[0])) {
+						throw new InvalidDataException(string.Format("Duplicit input information: '{0}'", item));
+					}
+					if (!int.TryParse(parts[1], out value)) {
+						throw new InvalidDataException(string.Format("Unable to parse value: '{0}'", parts[1]));
+					}
+					items.Add(parts[0], value);
+				}
+
+				if (!items.ContainsKey(input_hitpoints)) {
+					throw new InvalidDataException("Hit points value not found");
+				}
+				else {
+					HitPoints = items[input_hitpoints];
+					hitpoints_init = items[input_hitpoints];
+				}
+				if (!items.ContainsKey(input_damage)) {
+					throw new InvalidDataException("Damage value not found");
+				}
+				else {
+					Damage = items[input_damage];
+				}
+				if (!items.ContainsKey(input_armor)) {
+					throw new InvalidDataException("Armor value not found");
+				}
+				else {
+					Defense = items[input_armor];
+				}
 			}
 
 			public void Reset() {
@@ -163,9 +210,10 @@ namespace Day21 {
 
 			Console.WriteLine("=== Advent of Code - day 21 ====");
 
-			#region part 1
-
-			Console.WriteLine("--- part 1 ---");
+			if (!System.IO.File.Exists(input_path)) {
+				Console.WriteLine("input file not found");
+				return;
+			}
 
 			#region test
 			/*
@@ -175,7 +223,8 @@ namespace Day21 {
 			*/
 			#endregion
 
-			boss = new Fighter(109, 8, 2);  //*used values from input file directly
+			//boss = new Fighter(109, 8, 2);  //*used values from input file directly
+			boss = new Fighter(input_path);
 			result_part1 = int.MaxValue;
 			result_part2 = int.MinValue;
 
@@ -206,6 +255,11 @@ namespace Day21 {
 				}
 			}
 
+			#region part 1
+
+			Console.WriteLine("--- part 1 ---");
+
+
 			Console.WriteLine("Result is {0}", result_part1);
 
 			#endregion
@@ -224,7 +278,13 @@ namespace Day21 {
 			int boss_damage, my_damage;
 
 			boss_damage = boss.Damage - me.Defense;
+			if (boss_damage < 1) {
+				boss_damage = 1;
+			}
 			my_damage = me.Damage - boss.Defense;
+			if (my_damage < 1) {
+				my_damage = 1;
+			}
 
 			while (true) {
 				boss.HitPoints -= my_damage;
