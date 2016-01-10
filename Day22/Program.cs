@@ -14,6 +14,7 @@ namespace Day22 {
 
 		private class Fighter {
 			public virtual int HitPoints { get; set; }
+
 			public virtual int Damage { get; set; }
 
 			private int hitpoints_init = 0;
@@ -32,29 +33,27 @@ namespace Day22 {
 				input = System.IO.File.ReadAllLines(path);
 				foreach (string item in input) {
 					parts = item.Split(new string[] { ": " }, StringSplitOptions.RemoveEmptyEntries);
-					if (!parts.Length.Equals(2)) {
+					if(!parts.Length.Equals(2)) {
 						throw new InvalidDataException(string.Format("Invalid input format: '{0}'", item));
 					}
-					if (items.ContainsKey(parts[0])) {
+					if(items.ContainsKey(parts[0])) {
 						throw new InvalidDataException(string.Format("Duplicit input information: '{0}'", item));
 					}
-					if (!int.TryParse(parts[1], out value)) {
+					if(!int.TryParse(parts[1], out value)) {
 						throw new InvalidDataException(string.Format("Unable to parse value: '{0}'", parts[1]));
 					}
 					items.Add(parts[0], value);
 				}
 
-				if (!items.ContainsKey(input_hitpoints)) {
+				if(!items.ContainsKey(input_hitpoints)) {
 					throw new InvalidDataException("Hit points value not found");
-				}
-				else {
+				} else {
 					HitPoints = items[input_hitpoints];
 					hitpoints_init = items[input_hitpoints];
 				}
-				if (!items.ContainsKey(input_damage)) {
+				if(!items.ContainsKey(input_damage)) {
 					throw new InvalidDataException("Damage value not found");
-				}
-				else {
+				} else {
 					Damage = items[input_damage];
 				}
 			}
@@ -71,13 +70,23 @@ namespace Day22 {
 		private class Wizard {
 			private int hitpoints_init = 0;
 			private int mana_init = 0;
+			private int mana = 0;
+			private int mana_spent = 0;
 
 			public virtual int HitPoints { get; set; }
 
-			public virtual int Mana { get; set; }
+			public virtual int ManaSpent {
+				get { return mana_spent; }
+			}
+
+			public virtual int Mana {
+				get{ return mana; }
+			}
+
 			public void Reset() {
 				HitPoints = hitpoints_init;
-				Mana = mana_init;
+				mana = mana_init;
+				mana_spent = 0;
 			}
 
 			public Wizard(int hitpoints, int mana) {
@@ -86,14 +95,27 @@ namespace Day22 {
 				Reset();
 			}
 
+			public void CastSpell(int cost) {
+				mana -= cost;
+				mana_spent += cost;
+			}
+
+			public void ReplenishMana(int replenish) {
+				mana += replenish;
+			}
 		}
 
 		private class Spell {
 			public int Cost { get; set; }
+
 			public int Armor { get; set; }
+
 			public int Durability { get; set; }
+
 			public int Damage { get; set; }
+
 			public int Heal { get; set; }
+
 			public int Replenish { get; set; }
 
 			public Spell(int cost, int armor, int durability, int damage, int heal, int replenish) {
@@ -119,15 +141,15 @@ namespace Day22 {
 			Fighter boss;
 			Wizard me;
 			Dictionary<Spell, int> active_effects = new Dictionary<Spell, int>();
-
+			Dictionary<List<Spell>,Tuple<int, bool>> fight_log = new Dictionary<List<Spell>, Tuple<int, bool>>();
 			Console.WriteLine("=== Advent of Code - day 22 ====");
 
-			if (!System.IO.File.Exists(input_path)) {
+			if(!System.IO.File.Exists(input_path)) {
 				Console.WriteLine("input file not found");
 				return;
 			}
-
-			/*
+				
+			//*
 			#region test1
 
 			bool res, lost;
@@ -165,7 +187,7 @@ namespace Day22 {
 			res = PerformTurn(me, boss, null, active_effects, true, out lost);
 
 			#endregion
-			*/
+			//*/
 
 			boss = new Fighter(input_path);
 			me = new Wizard(50, 500);
@@ -194,17 +216,16 @@ namespace Day22 {
 
 			boss_won = false;
 
-			if (active_effects.ContainsKey(Shield)) {
+			if(active_effects.ContainsKey(Shield)) {
 				armor = Shield.Armor;
 			}
 
-			if (print) {
+			if(print) {
 				Console.WriteLine();
 
-				if (spell == null) {
+				if(spell == null) {
 					Console.WriteLine("-- Boss turn --");
-				}
-				else {
+				} else {
 					Console.WriteLine("--Player turn--");
 				}
 				Console.WriteLine("- Player has {0} hit points, {1} armor, {2} mana", me.HitPoints, armor, me.Mana);
@@ -213,132 +234,126 @@ namespace Day22 {
 
 			List<Spell> tmp = new List<Spell>(active_effects.Keys);
 			foreach (Spell effect in tmp) {
-				if (effect.Equals(Shield)) {
+				if(effect.Equals(Shield)) {
 					active_effects[effect]--;
-					if (print) {
+					if(print) {
 						Console.WriteLine("Shield's timer is now {0}.", active_effects[effect]);
 					}
-					if (active_effects[effect].Equals(0)) {
+					if(active_effects[effect].Equals(0)) {
 						active_effects.Remove(effect);
-						if (print) {
+						if(print) {
 							Console.WriteLine("Shield wears off, decreasing armor by {0}.", effect.Armor);
 						}
 					}
-				}
-				else if (effect.Equals(Poison)) {
+				} else if(effect.Equals(Poison)) {
 					active_effects[effect]--;
 					boss.HitPoints -= effect.Damage;
 
-					if (print) {
+					if(print) {
 						Console.Write("Poison deals {0} damage; ", effect.Damage);
 					}
-					if (boss.HitPoints <= 0) {
+					if(boss.HitPoints <= 0) {
 						Console.WriteLine("This kills the boss, and the player wins.");
 						return true;
-					}
-					else {
-						if (print) {
+					} else {
+						if(print) {
 							Console.WriteLine("its timer is now {0}.", active_effects[effect]);
 						}
-						if (active_effects[effect].Equals(0)) {
+						if(active_effects[effect].Equals(0)) {
 							active_effects.Remove(effect);
-							if (print) {
+							if(print) {
 								Console.WriteLine("Poison wears off.");
 							}
 						}
 					}
-				}
-				else if (effect.Equals(Recharge)) {
+				} else if(effect.Equals(Recharge)) {
 					active_effects[effect]--;
-					me.Mana += effect.Replenish;
-					if (print) {
+					me.ReplenishMana(effect.Replenish);
+					if(print) {
 						Console.WriteLine("Recharge provides {0} mana; its timer is now {1}.", effect.Replenish, active_effects[effect]);
 					}
-					if (active_effects[effect].Equals(0)) {
+					if(active_effects[effect].Equals(0)) {
 						active_effects.Remove(effect);
-						if (print) {
+						if(print) {
 							Console.WriteLine("Recharge wears off");
 						}
 					}
-				}
-				else {
+				} else {
 					throw new InvalidDataException(string.Format("Invalid effect '{0}'", effect.ToString()));
 				}
 			}
 
-			if (spell == null) {
-				if (armor > 0) {
+			if(spell == null) {
+				if(armor > 0) {
 					hit_damage = boss.Damage - armor;
-					if (hit_damage < 1) {
+					if(hit_damage < 1) {
 						hit_damage = 1;
 					}
-					if (print) {
+					if(print) {
 						Console.WriteLine("Boss attacks for {0} - {1} => {2} damage!", boss.Damage, armor, hit_damage);
 					}
-				}
-				else {
+				} else {
 					hit_damage = boss.Damage;
-					if (print) {
+					if(print) {
 						Console.WriteLine("Boss attacks for {0} damage!", hit_damage);
 					}
 				}
 				me.HitPoints -= hit_damage;
-				if (me.HitPoints <= 0) {
-					if (print) {
+				if(me.HitPoints <= 0) {
+					if(print) {
 						Console.WriteLine("This kills the player and boss wins");
 					}
 					boss_won = true;
 					return true;
 				}
-			}
-			else {
-				if (spell.Equals(MagicMissile)) {
-					if (print) {
+			} else {
+				if(spell.Equals(MagicMissile)) {
+					if(print) {
 						Console.WriteLine("Player casts Magic Missile, dealing {0} damage.", spell.Damage);
 					}
 					boss.HitPoints -= spell.Damage;
-					if (boss.HitPoints <= 0) {
-						if (print) {
+					if(boss.HitPoints <= 0) {
+						if(print) {
 							Console.WriteLine("This kills the boss, and the player wins.");
 						}
 						return true;
 					}
-				}
-				else if (spell.Equals(Drain)) {
-					if (print) {
+				} else if(spell.Equals(Drain)) {
+					if(print) {
 						Console.WriteLine("Player casts Drain, dealing {0} damage, and healing {1} hit points.", spell.Damage, spell.Heal);
 					}
 					boss.HitPoints -= spell.Damage;
 					me.HitPoints += spell.Heal;
-					if (boss.HitPoints <= 0) {
-						if (print) {
+					if(boss.HitPoints <= 0) {
+						if(print) {
 							Console.WriteLine("This kills the boss, and the player wins.");
 						}
 						return true;
 					}
-				}
-				else if (spell.Equals(Shield)) {
-					if (print) {
+				} else if(spell.Equals(Shield)) {
+					if(print) {
 						Console.WriteLine("Player casts Shield, increasing armor by {0}.", spell.Armor);
 					}
 					active_effects.Add(spell, spell.Durability);
-				}
-				else if (spell.Equals(Poison)) {
-					if (print) {
+				} else if(spell.Equals(Poison)) {
+					if(print) {
 						Console.WriteLine("Player casts Poison.");
 					}
 					active_effects.Add(spell, spell.Durability);
-				}
-				else if (spell.Equals(Recharge)) {
-					if (print) {
+				} else if(spell.Equals(Recharge)) {
+					if(print) {
 						Console.WriteLine("Player casts Recharge.");
 					}
 					active_effects.Add(spell, spell.Durability);
-				}
-				else {
+				} else {
 					throw new InvalidDataException(string.Format("Invalid spell '{0}'", spell.ToString()));
 				}
-				me.Mana -= spell.Cost;
+				if(spell.Cost > me.Mana) {
+					boss_won = true;
+					return true;
+				} else {
+					me.CastSpell(spell.Cost);
+				}
 			}
 
 			return finished;
