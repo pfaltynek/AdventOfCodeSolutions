@@ -82,21 +82,25 @@ namespace Day24 {
 		private static void FindIdealGroup(List<int> all_weights, List<int> ungrouped, List<int> group, int sum, ref int count, ref long qe) {
 			int grp_sum;
 			long q_e;
-			
+
 			for (int i = 0; i < ungrouped.Count; i++) {
 				List<int> grp = new List<int>(group);
 				grp.Add(ungrouped[i]);
 				grp_sum = grp.Sum();
 				if (grp_sum.Equals(sum)) {
 					if (grp.Count <= count) {
-						q_e = GetQE(grp);
-						if (grp.Count < count) {
-							qe = q_e;
-							count = grp.Count;
-						}
-						else {
-							if (q_e < qe) {
+						List<int> all_reduced = new List<int>(all_weights.Except(grp));
+
+						if (CheckOtherGroups(all_reduced, all_reduced, new List<int>(), sum)) {
+							q_e = GetQE(grp);
+							if (grp.Count < count) {
 								qe = q_e;
+								count = grp.Count;
+							}
+							else {
+								if (q_e < qe) {
+									qe = q_e;
+								}
 							}
 						}
 					}
@@ -109,6 +113,40 @@ namespace Day24 {
 					FindIdealGroup(all_weights, new_ungrouped, grp, sum, ref count, ref qe);
 				}
 			}
+		}
+
+		private static bool CheckOtherGroups(List<int> all_weights, List<int> ungrouped, List<int> group, int sum) {
+			bool result = false;
+			int grp_sum;
+
+			for (int i = 0; i < ungrouped.Count; i++) {
+				List<int> grp = new List<int>(group);
+				grp.Add(ungrouped[i]);
+				grp_sum = grp.Sum();
+				if (grp_sum.Equals(sum)) {
+					if (grp.Count < all_weights.Count) {
+						List<int> all_reduced = new List<int>(all_weights.Except(grp));
+						if (CheckOtherGroups(all_reduced, all_reduced, new List<int>(), sum)) {
+							return true;
+						}
+					}
+					else {
+						if (grp.Count.Equals(all_weights.Count)) {
+							return true;
+						}
+					}
+				}
+				else if (grp_sum < sum) {
+					List<int> new_ungrouped = new List<int>(ungrouped);
+					for (int j = 0; j <= i; j++) {
+						new_ungrouped.Remove(ungrouped[j]);
+					}
+					if (CheckOtherGroups(all_weights, new_ungrouped, grp, sum)) {
+						return true;
+					}
+				}
+			}
+			return result;
 		}
 
 		private static long GetQE(List<int> grp) {
