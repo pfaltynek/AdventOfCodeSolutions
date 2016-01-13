@@ -14,7 +14,7 @@ namespace Day24 {
 			string[] lines;
 			List<int> weights = new List<int>();
 
-			Console.WriteLine("=== Advent of Code - day 23 ====");
+			Console.WriteLine("=== Advent of Code - day 24 ====");
 
 			if (!System.IO.File.Exists(input_path)) {
 				Console.WriteLine("input file not found");
