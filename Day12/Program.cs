@@ -12,7 +12,7 @@ namespace Day12 {
 			string[] items;
 			int sum = 0, sum2 = 0;
 
-			Console.WriteLine("=== Advent of Code - day 9 ====");
+			Console.WriteLine("=== Advent of Code - day 12 ====");
 
 			if (!System.IO.File.Exists(input_path)) {
 				Console.WriteLine("input file not found");
